@@ -128,7 +128,18 @@ class Point(Vector, ThreeDObject):
             None
         """
         with self:
-            bpy.ops.object.empty_add(location=(self[0], self[1], self[2]))
+            bpy.ops.object.empty_add(location=(self[:-1]))
+
+    def update(self, _point=None):
+        """
+        Update the point in the scene AND the point's coordinates.
+
+        Returns:
+            None
+        """
+        if _point.any():
+            self[0], self[1], self[2] = _point[0], _point[1], _point[2]
+            self.ref.location = _point[:-1]
 
     def translation(self, vector: Vector):
         """
@@ -147,7 +158,7 @@ class Point(Vector, ThreeDObject):
 
         final_matrix = translation_matrix @ np.array(self)
 
-        self.ref.location = (final_matrix[0], final_matrix[1], final_matrix[2])
+        self.update(final_matrix)
 
     def homohety(self, vector: Vector):
         """
@@ -166,7 +177,7 @@ class Point(Vector, ThreeDObject):
 
         final_matrix = homothety_matrix @ np.array(self)
 
-        self.ref.location = (final_matrix[0], final_matrix[1], final_matrix[2])
+        self.update(final_matrix)
 
     def rotation_x(self, angle: float):
         """
@@ -178,6 +189,8 @@ class Point(Vector, ThreeDObject):
         Returns:
             None
         """
+        angle = np.radians(angle)
+
         rotation_matrix = np.identity(4)
         rotation_matrix[1][1] = np.cos(angle)
         rotation_matrix[1][2] = -np.sin(angle)
@@ -186,7 +199,7 @@ class Point(Vector, ThreeDObject):
 
         final_matrix = rotation_matrix @ np.array(self)
 
-        self.ref.location = (final_matrix[0], final_matrix[1], final_matrix[2])
+        self.update(final_matrix)
 
     def rotation_y(self, angle: float):
         """
@@ -198,6 +211,8 @@ class Point(Vector, ThreeDObject):
         Returns:
             None
         """
+        angle = np.radians(angle)
+
         rotation_matrix = np.identity(4)
         rotation_matrix[0][0] = np.cos(angle)
         rotation_matrix[0][2] = np.sin(angle)
@@ -206,18 +221,20 @@ class Point(Vector, ThreeDObject):
 
         final_matrix = rotation_matrix @ np.array(self)
 
-        self.ref.location = (final_matrix[0], final_matrix[1], final_matrix[2])
+        self.update(final_matrix)
 
     def rotation_z(self, angle: float):
         """
         Rotate the point around the z-axis.
 
         Args:
-            angle: The angle to rotate the point by.
+            angle: The angle to rotate the point by in degrees.
 
         Returns:
             None
         """
+        angle = np.radians(angle)
+
         rotation_matrix = np.identity(4)
         rotation_matrix[0][0] = np.cos(angle)
         rotation_matrix[0][1] = -np.sin(angle)
@@ -226,7 +243,7 @@ class Point(Vector, ThreeDObject):
 
         final_matrix = rotation_matrix @ np.array(self)
 
-        self.ref.location = (final_matrix[0], final_matrix[1], final_matrix[2])
+        self.update(final_matrix)
 
 
 class Cube(ThreeDObject):
@@ -246,7 +263,7 @@ class Cube(ThreeDObject):
         name: The name of the cube.
     """
     def __init__(self, _points: list[Point], name: str = None):
-        super().__init__(name=name)
+        super().__init__(name)
         self.points = _points
         self.size = (points[-1] - points[0])[0]
 
@@ -258,7 +275,29 @@ class Cube(ThreeDObject):
             None
         """
         with self:
-            bpy.ops.mesh.primitive_cube_add(size=self.size, location=self.points[0])
+            # Place the cube, the origin of the cube is at the center of the cube
+            # so, we need to translate it by half of the size of the cube
+            origin = (self.points[0] + self.points[-1]) / 2
+            bpy.ops.mesh.primitive_cube_add(
+                size=self.size,
+                location=origin[:-1],
+            )
+
+    def update(self, _points: list[Point] = None):
+        """
+        Update the cube in the scene.
+
+        Returns:
+            None
+        """
+        if _points:
+            print("Updating the cube's points")
+            self.points = _points
+
+        # update the cube's reference
+        origin = (self.points[0] + self.points[-1]) / 2
+
+        self.ref.location = origin[:-1]
 
 
 # Clear the scene
@@ -276,7 +315,32 @@ points = [
     Point(1, 1, 1, "p_8")
 ]
 
+DESIRED_FPS = 24
+PADDING_FRAMES = 2 * DESIRED_FPS  # 2 seconds
+ANIMATION_FRAMES = 5 * DESIRED_FPS  # 5 seconds
+
+Z_ANGLE = 90  # degrees
+DEGREES_PER_SECOND = 30
+ANGLE_ANIMATION_FRAMES = Z_ANGLE // DEGREES_PER_SECOND * DESIRED_FPS
+
+ANIM_1_END = ANIMATION_FRAMES + PADDING_FRAMES
+ANIM_2_START = ANIM_1_END + PADDING_FRAMES
+ANIM_2_END = ANIM_2_START + Z_ANGLE // DEGREES_PER_SECOND * DESIRED_FPS
+
+TOTAL_FRAMES = ANIM_2_END + PADDING_FRAMES
+
+
 for point in points:
     point.place()
 
-cube = Cube(points, name='cube')
+    point.keyframe_insert(PADDING_FRAMES)
+    point.translation(Vector(0, 0, 2))
+    point.keyframe_insert(ANIM_1_END)
+
+    # Animate the cube rotating around the z-axis
+    for i in range(1, ANGLE_ANIMATION_FRAMES + 1):
+        point.keyframe_insert(ANIM_2_START + i)
+        point.rotation_z(Z_ANGLE / ANGLE_ANIMATION_FRAMES)
+
+
+bpy.context.scene.frame_end = TOTAL_FRAMES
