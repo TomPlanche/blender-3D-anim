@@ -2,6 +2,26 @@
 
 > The purpose of this exercise is to model and animate 2D transformations. Having already done this part [here](https://github.com/TomPlanche/2D_vector_translations), I decided to try it in 3D using [Blender](https://www.blender.org/).
 
+<div style="width: 100%; display: flex; flex-direction: row; justify-content: center; align-items: center; gap: 2rem">
+    <img src="https://sonarcloud.io/api/project_badges/quality_gate?project=TomPlanche_blender_anim_maths" alt="Quality Gate Status" />
+    <div style="width: max-content; display: flex; flex-direction: column; justify-content: center; align-items: flex-end; gap: 1rem">
+      <img
+        src="https://sonarcloud.io/api/project_badges/measure?project=TomPlanche_blender_anim_maths&metric=vulnerabilities"
+        alt="Vulnerabilities"
+        style="width: auto; height: 100%;"
+      />
+        <img
+            src="https://sonarcloud.io/api/project_badges/measure?project=TomPlanche_blender_anim_maths&metric=reliability_rating"
+            alt="Bugs"
+            style="width: auto; height: 100%;"
+        />
+        <img
+            src="https://sonarcloud.io/api/project_badges/measure?project=TomPlanche_blender_anim_maths&metric=security_rating"
+            style="width: auto; height: 100%;"
+        />
+    </div>
+</div>
+
 ## 1. TODOs
 - [x] Create utility functions
   - [x] `console_print`:
