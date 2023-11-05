@@ -64,11 +64,11 @@ class ThreeDObject:
     A 3D object in 3D space.
 
     Args:
-        threeDObject_name: The name of the 3D object.
+        three_d_object_name: The name of the 3D object.
     """
-    def __init__(self, threeDObject_name: str = None):
+    def __init__(self, three_d_object_name: str = None):
         self.ref = None
-        self.three_d_object_name = threeDObject_name if threeDObject_name else "unnamed_3D_object"
+        self.three_d_object_name = three_d_object_name if three_d_object_name else "unnamed_3D_object"
 
     def __str__(self):
         return self.three_d_object_name
@@ -117,11 +117,11 @@ class Point(ColumnVector, ThreeDObject):
         x: The x coordinate of the point. (ColumnVector class)
         y: The y coordinate of the point. (ColumnVector class)
         z: The z coordinate of the point. (ColumnVector class)
-        threeDObject_name: The name of the point. (ThreeDObject class)
+        three_d_object_name: The name of the point. (ThreeDObject class)
     """
-    def __init__(self, x: float, y: float, z: float, threeDObject_name: str = None, _type="PLAIN_AXES", radius=.25):
+    def __init__(self, x: float, y: float, z: float, three_d_object_name: str = None, _type="PLAIN_AXES", radius=.25):
         ColumnVector.__init__(self, x, y, z)
-        ThreeDObject.__init__(self, threeDObject_name)
+        ThreeDObject.__init__(self, three_d_object_name)
 
         self.type = _type
         self.radius = radius
@@ -338,14 +338,14 @@ class Edge(ThreeDObject):
         _point_2: The second point of the edge.
         _point_3: The third point of the edge.
         _point_4: The fourth point of the edge.
-        threeDObject_name: The name of the edge.
+        three_d_object_name: The name of the edge.
     """
     def __init__(
             self,
             _point_1: Point, _point_2: Point, _point_3: Point, _point_4: Point,
-            threeDObject_name: str = None
+            three_d_object_name: str = None
     ):
-        super().__init__(threeDObject_name)
+        super().__init__(three_d_object_name)
         self.points = [_point_1, _point_2, _point_3, _point_4]
         self.plane_ref = None  # Store a reference to the plane object
 
