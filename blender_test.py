@@ -126,7 +126,7 @@ class Point(ColumnVector, ThreeDObject):
         self.type = _type
         self.radius = radius
 
-    def __new__(cls, x: float, y: float, z: float, threeDObject_name: str = None, _type="PLAIN_AXES"):
+    def __new__(cls, x: float, y: float, z: float, three_d_object_name: str = None, _type="PLAIN_AXES"):
         obj = super(Point, cls).__new__(cls, x, y, z)
 
         return obj
