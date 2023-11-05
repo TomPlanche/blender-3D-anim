@@ -11,13 +11,12 @@ import builtins as __builtin__
 npa = np.ndarray
 
 
-def console_print(*args, **kwargs) -> None:
+def console_print(*args) -> None:
     """
     Print to the console.
 
     Args:
         *args: The arguments to print.
-        **kwargs: The keyword arguments to print.
 
     Returns:
         None
@@ -34,7 +33,7 @@ def console_print(*args, **kwargs) -> None:
 def print(*args, **kwargs):
     """Console print() function."""
 
-    console_print(*args, **kwargs)  # to py consoles
+    console_print(*args)  # to py consoles
     __builtin__.print(*args, **kwargs)  # to system console
 
 
@@ -69,13 +68,13 @@ class ThreeDObject:
     """
     def __init__(self, threeDObject_name: str = None):
         self.ref = None
-        self.threeDObject_name = threeDObject_name if threeDObject_name else "unnamed_3D_object"
+        self.three_d_object_name = threeDObject_name if threeDObject_name else "unnamed_3D_object"
 
     def __str__(self):
-        return self.threeDObject_name
+        return self.three_d_object_name
 
     def __repr__(self):
-        return self.threeDObject_name
+        return self.three_d_object_name
 
     def __enter__(self):
         bpy.ops.object.select_all(action='DESELECT')  # Deselect all objects
@@ -85,9 +84,9 @@ class ThreeDObject:
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.ref = bpy.context.object
 
-        if self.threeDObject_name:
+        if self.three_d_object_name:
             # Rename the object
-            self.ref.name = self.threeDObject_name
+            self.ref.name = self.three_d_object_name
 
             # Display the name
             self.ref.show_name = True
@@ -133,22 +132,8 @@ class Point(ColumnVector, ThreeDObject):
         return obj
 
     def __str__(self):
-        name = f'"{self.threeDObject_name}"' if self.threeDObject_name else "Unnamed"
+        name = f'"{self.three_d_object_name}"' if self.three_d_object_name else "Unnamed"
         return f"Point<{name}>({self[0]}, {self[1]}, {self[2]})"
-
-    # def __repr__(self):
-    #     """
-    #     Return a string representation of the point.
-    #     It uses threeDObject_name argument from it's ThreeDObject parent class.
-    #
-    #     Returns:
-    #         (str): The string representation of the point.
-    #
-    #     Examples:
-    #         >>> Point(1, 2, 3, "point_1")
-    #         Point<"point_1">(1, 2, 3)
-    #     """
-    #     return self.__str__()
 
     def place(self):
         """
@@ -372,9 +357,9 @@ class Edge(ThreeDObject):
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.ref = bpy.context.object
 
-        if self.threeDObject_name:
+        if self.three_d_object_name:
             # Rename the object
-            self.ref.name = self.threeDObject_name
+            self.ref.name = self.three_d_object_name
 
             # Display the name
             self.ref.show_name = True
@@ -430,123 +415,28 @@ class Edge(ThreeDObject):
         Returns:
             None
         """
-        print(f"Updating {self.threeDObject_name}")
+        print(f"Updating {self.three_d_object_name}")
 
         if _points:
-            print(f"Updating {self.threeDObject_name} with {_points}")
+            print(f"Updating {self.three_d_object_name} with {_points}")
             self.points = _points
 
         # Update the plane object using the stored reference
         if self.ref:
-            print(f"Updating {self.threeDObject_name} plane_ref")
+            print(f"Updating {self.three_d_object_name} plane_ref")
             final_location = (self.points[3] + self.points[0]) / 2
             self.ref.location = final_location[:-1]
 
 
-# class Cube(ThreeDObject):
-#     """
-#     Cube in 3D space.
-#
-#     Args:
-#         _points: The points of the cube. The points must be in the following order:
-#             0: (0, 0, 0)
-#             1: (1, 0, 0)
-#             2: (0, 1, 0)
-#             3: (1, 1, 0)
-#             4: (0, 0, 1)
-#             5: (1, 0, 1)
-#             6: (0, 1, 1)
-#             7: (1, 1, 1)
-#         threeDObject_name: The name of the cube.
-#     """
-#     def __init__(self, _points: list[Point], threeDObject_name: str = None, solid: bool = False):
-#         super().__init__(threeDObject_name)
-#         self.points = _points
-#         self.solid = solid
-#
-#         self.size = (_points[-1] - _points[0])[0]
-#         self.edges = [
-#             Edge(*_points[:4], threeDObject_name="edge_bottom"),
-#             Edge(*_points[4:], threeDObject_name="edge_top"),
-#             Edge(_points[0], _points[4], _points[2], _points[6], threeDObject_name="edge_y_1"),
-#             Edge(_points[1], _points[5], _points[3], _points[7], threeDObject_name="edge_y_2"),
-#             Edge(_points[0], _points[1], _points[4], _points[5], threeDObject_name="edge_x_1"),
-#             Edge(_points[2], _points[3], _points[6], _points[7], threeDObject_name="edge_4"),
-#         ]
-#
-#     def keyframe_insert(self, frame: int, _property: str = "location"):
-#         """
-#         Override the ThreeDObject class keyframe_insert() method.
-#         Insert a keyframe.
-#
-#         Args:
-#             frame: The frame to insert the keyframe at.
-#             _property: The property to insert the keyframe for.
-#
-#         Returns:
-#             None
-#         """
-#         if self.solid:
-#             for edge in self.edges:
-#                 edge.keyframe_insert(frame, _property)
-#
-#     def place(self):
-#         """
-#         Place the cube in the scene.
-#
-#         Returns:
-#             None
-#         """
-#         if self.solid:
-#             # Place the cube, the origin of the cube is at the center of the cube
-#             # so, we need to translate it by half of the size of the cube
-#             # origin = (self.points[0] + self.points[-1]) / 2
-#             # bpy.ops.mesh.primitive_cube_add(
-#             #     size=self.size,
-#             #     location=origin[:-1],
-#             # )
-#
-#             for edge in self.edges:
-#                 edge.place()
-#
-#     def update(self, _points: list[Point] = None):
-#         """
-#         Update the cube in the scene.
-#
-#         Returns:
-#             None
-#         """
-#         if _points:
-#             self.points = _points
-#             self.edges = [
-#                 Edge(*_points[:4], threeDObject_name="edge_bottom"),
-#                 Edge(*_points[4:], threeDObject_name="edge_top"),
-#                 Edge(_points[0], _points[4], _points[2], _points[6], threeDObject_name="edge_y_1"),
-#                 Edge(_points[1], _points[5], _points[3], _points[7], threeDObject_name="edge_y_2"),
-#                 Edge(_points[0], _points[1], _points[4], _points[5], threeDObject_name="edge_x_1"),
-#                 Edge(_points[2], _points[3], _points[6], _points[7], threeDObject_name="edge_4"),
-#             ]
-#
-#         # update the cube's reference
-#         if self.solid:
-#             # Place the cube, the origin of the cube is at the center of the cube
-#             # so, we need to translate it by half of the size of the cube
-#             # origin = (self.points[0] + self.points[-1]) / 2
-#             # bpy.ops.mesh.primitive_cube_add(
-#             #     size=self.size,
-#             #     location=origin[:-1],
-#             # )
-#
-#             for edge in self.edges:
-#                 edge.update()
-
-
+# Here, I'm setting the animations frames for better and cleander code.
 DESIRED_FPS = 24
 PADDING_FRAMES = 2 * DESIRED_FPS  # 2 seconds
 ANIMATION_FRAMES = 5 * DESIRED_FPS  # 5 seconds
 
 Z_ANGLE = 90  # degrees
 DEGREES_PER_SECOND = 30
+
+# number of frames needed per angle of rotation
 ANGLE_ANIMATION_FRAMES = Z_ANGLE // DEGREES_PER_SECOND * DESIRED_FPS
 
 ANIM_1_END = ANIMATION_FRAMES + PADDING_FRAMES
@@ -572,11 +462,6 @@ points = [
 
 ANIM_FRAMES = ANGLE_ANIMATION_FRAMES + 1
 
-# Create the cube
-# cube_1 = Cube(points, "cube_1", solid=True)
-# cube_1.place()
-# cube_1.keyframe_insert(PADDING_FRAMES)
-
 for point in points:
     point.place()
 
@@ -585,14 +470,10 @@ for point in points:
     point.keyframe_insert(ANIM_1_END)
 
 
-# cube_1.update(points)
-# cube_1.keyframe_insert(ANIM_1_END)
-
 # Animate the cube rotating around the z-axis
-#     for i in range(1, ANGLE_ANIMATION_FRAMES + 1):
-#         point.keyframe_insert(ANIM_2_START + i)
-#         point.rotation_z(Z_ANGLE / ANGLE_ANIMATION_FRAMES)
+    for i in range(1, ANGLE_ANIMATION_FRAMES + 1):
+        point.keyframe_insert(ANIM_2_START + i)
+        point.rotation_z(Z_ANGLE / ANGLE_ANIMATION_FRAMES)
 
 
 bpy.context.scene.frame_end = TOTAL_FRAMES
-
